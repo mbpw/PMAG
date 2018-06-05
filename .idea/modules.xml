@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://D:\Android_projekty\PMAG\PROJEKT\PMAG.iml" filepath="D:\Android_projekty\PMAG\PROJEKT\PMAG.iml" />
-      <module fileurl="file://$PROJECT_DIR$/PROJEKT.iml" filepath="$PROJECT_DIR$/PROJEKT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PMAG.iml" filepath="$PROJECT_DIR$/PMAG.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
