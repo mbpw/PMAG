@@ -1,6 +1,7 @@
 package com.mbbz.apturyst;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
@@ -31,6 +32,15 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.mbbz.apturyst.utils.Utils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,9 +50,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 public class AndroidCameraApi extends AppCompatActivity {
+    private StorageReference storageReference;
+
     private static final String TAG = "AndroidCameraApi";
     private Button takePictureButton;
     private TextureView textureView;
@@ -70,6 +83,9 @@ public class AndroidCameraApi extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_android_camera_api);
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
         textureView = (TextureView) findViewById(R.id.texture);
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
@@ -170,10 +186,14 @@ public class AndroidCameraApi extends AppCompatActivity {
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             captureBuilder.addTarget(reader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            final File file = new File(Environment.getExternalStorageDirectory()+"/pic.jpg");
+            final String timestamp = Utils.getCurrentDateTime();
+            final File file = new File(Environment.getExternalStorageDirectory()+"/"+timestamp+".jpg");
+
+
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -195,10 +215,31 @@ public class AndroidCameraApi extends AppCompatActivity {
                     }
                 }
                 private void save(byte[] bytes) throws IOException {
+                    final ProgressDialog progressDialog = new ProgressDialog(AndroidCameraApi.this);
+                    progressDialog.setTitle("Uploading...");
+                    progressDialog.show();
+
                     OutputStream output = null;
                     try {
                         output = new FileOutputStream(file);
                         output.write(bytes);
+
+                        StorageReference uploadRef = storageReference.child("images/"+ UUID.randomUUID().toString());
+                        UploadTask uploadTask = uploadRef.putBytes(bytes);
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                Toast.makeText(AndroidCameraApi.this, "Nie udal sie upload :(", Toast.LENGTH_SHORT).show();
+                                progressDialog.dismiss();
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Toast.makeText(AndroidCameraApi.this, "Upload OK", Toast.LENGTH_SHORT).show();
+                                progressDialog.dismiss();
+                            }
+                        });
+
                     } finally {
                         if (null != output) {
                             output.close();

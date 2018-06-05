@@ -51,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     FirebaseAuth mAuth;
     Button selecPhoto;
     Button uploadPhoto;
+    Button startCamera;
     private Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
     FirebaseStorage storage;
@@ -66,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         uploadPhoto = (Button) findViewById(R.id.uploadPhoto_btn);
         selecPhoto = (Button) findViewById(R.id.selecPhoto_btn);
+        startCamera = (Button) findViewById(R.id.startCamera_btn);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -110,6 +112,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 uploadImage();
+            }
+        });
+
+        startCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), AndroidCameraApi.class));
             }
         });
 

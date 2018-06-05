@@ -7,26 +7,39 @@
     android:orientation="vertical"
     tools:context="com.mbbz.apturyst.MapsActivity">
 
-    <Button
-        android:id="@+id/selecPhoto_btn"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="120dp"
-        android:text="Wybierz foteczkę" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/uploadPhoto_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="130dp"
-        android:text="Dodaj foteczkę" />
+        <Button
+            android:id="@+id/selecPhoto_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
 
-    <Button
-        android:id="@+id/buttonLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginLeft="150dp"
-        android:text="Wyloguj" />
+            android:text="Wybierz foteczkę" />
+
+        <Button
+            android:id="@+id/uploadPhoto_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="Dodaj foteczkę" />
+
+        <Button
+            android:id="@+id/startCamera_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="Kamera" />
+
+        <Button
+            android:id="@+id/buttonLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+
+            android:text="Wyloguj" />
+    </LinearLayout>
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
