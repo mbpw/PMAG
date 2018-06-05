@@ -1,6 +1,5 @@
 package com.mbbz.apturyst;
 
-import android.*;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -13,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,11 +35,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mbbz.apturyst.utils.MyLocationProvider;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -60,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final int REQ_CODE_PERMISSION = 1;
     private GoogleMap mMap;
 
+    MyLocationProvider mLocProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +71,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQ_CODE_PERMISSION);
         }
+
+        mLocProvider = MyLocationProvider.getInstance(this);
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mAuth = FirebaseAuth.getInstance();
@@ -249,6 +250,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapClick(LatLng latLng) {
         Log.d("S", "Klik krotki");
+        Location loc = mLocProvider.getLastLocation();
+        Log.d("GEO", "Current location: ("+Double.toString(loc.getLatitude())+"; "+Double.toString(loc.getLongitude())+")");
     }
 
     @Override

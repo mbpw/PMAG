@@ -14,7 +14,7 @@ public class Utils {
     private Utils() {}
 
     public static String getCurrentDateTime() {
-        SimpleDateFormat dt = new SimpleDateFormat("yyyy_MM_dd__hh-mm-ss", Locale.getDefault());
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.getDefault());
         Date now = new Date();
         return dt.format(now);
     }

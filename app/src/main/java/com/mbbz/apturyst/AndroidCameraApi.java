@@ -35,11 +35,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mbbz.apturyst.utils.MyLocationProvider;
 import com.mbbz.apturyst.utils.Utils;
+import com.mbbz.apturyst.utils.Zdjecie;
+//import com.mbbz.apturyst.utils.Zdjecie;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,12 +54,19 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
+
 public class AndroidCameraApi extends AppCompatActivity {
+
     private StorageReference storageReference;
+    FirebaseStorage storage;
+    FirebaseDatabase database;
+    MyLocationProvider mLocProvider;
 
     private static final String TAG = "AndroidCameraApi";
     private Button takePictureButton;
@@ -83,8 +95,10 @@ public class AndroidCameraApi extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_android_camera_api);
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance();
+        database = FirebaseDatabase.getInstance();
         storageReference = storage.getReference();
+        mLocProvider = MyLocationProvider.getInstance(this);
 
         textureView = (TextureView) findViewById(R.id.texture);
         assert textureView != null;
@@ -224,7 +238,9 @@ public class AndroidCameraApi extends AppCompatActivity {
                         output = new FileOutputStream(file);
                         output.write(bytes);
 
-                        StorageReference uploadRef = storageReference.child("images/"+ UUID.randomUUID().toString());
+                        String uuid = UUID.randomUUID().toString();
+
+                        StorageReference uploadRef = storageReference.child("images/"+uuid);
                         UploadTask uploadTask = uploadRef.putBytes(bytes);
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
@@ -239,6 +255,15 @@ public class AndroidCameraApi extends AppCompatActivity {
                                 progressDialog.dismiss();
                             }
                         });
+
+                        DatabaseReference dbRef = database.getReference().child("zdjecia/"+uuid);
+                        Zdjecie zdj = new Zdjecie(Utils.getCurrentDateTime(), uuid+".jpg",
+                                mLocProvider.getLastLocation().getLatitude(),
+                                mLocProvider.getLastLocation().getLongitude());
+
+                        dbRef.setValue(zdj);
+                        //dbRef.setValue(uuid, zdj);
+                        //dbRef.setValue(uuid, zdj.getImgFileName());
 
                     } finally {
                         if (null != output) {
