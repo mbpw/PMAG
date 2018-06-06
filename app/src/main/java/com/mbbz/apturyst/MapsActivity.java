@@ -27,6 +27,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -80,7 +81,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mLocProvider = MyLocationProvider.getInstance(this);
 
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mAuth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -102,8 +102,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Double lon = zdj.getLongitude();
 
                     LatLng marker = new LatLng(lat, lon);
-                    mMap.addMarker(new MarkerOptions().position(marker).title("Marker "+zdj.getTimestamp()));
-
+                    Marker m = mMap.addMarker(new MarkerOptions().position(marker));
+                    m.setTag(zdj);
                 }
             }
 
@@ -244,6 +244,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
+
+        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this, storageReference);
+        mMap.setInfoWindowAdapter(customInfoWindow);
 
     }
 
