@@ -1,11 +1,7 @@
 package com.mbbz.apturyst;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,14 +10,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageReference;
 import com.mbbz.apturyst.utils.Zdjecie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.net.URI;
 
 /*
  * Customowy "dymek" zawierający miniaturkę zdjęcia
@@ -52,8 +45,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
         if (popup == null) {
             popup=inflater.inflate(R.layout.custom_info_window, null);
         }
-//        View view = ((Activity)context).getLayoutInflater()
-//                .inflate(R.layout.custom_info_window, null);
+
 
         if (lastMarker == null
                 || !lastMarker.getId().equals(marker.getId())) {
