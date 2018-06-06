@@ -257,13 +257,13 @@ public class AndroidCameraApi extends AppCompatActivity {
                         });
 
                         DatabaseReference dbRef = database.getReference().child("zdjecia/"+uuid);
-                        Zdjecie zdj = new Zdjecie(Utils.getCurrentDateTime(), uuid+".jpg",
+                        Zdjecie zdj = new Zdjecie(Utils.getCurrentDateTime(),
+                                uuid+".jpg",
+                                "Opis zdjęcia",
                                 mLocProvider.getLastLocation().getLatitude(),
                                 mLocProvider.getLastLocation().getLongitude());
 
                         dbRef.setValue(zdj);
-                        //dbRef.setValue(uuid, zdj);
-                        //dbRef.setValue(uuid, zdj.getImgFileName());
 
                     } finally {
                         if (null != output) {

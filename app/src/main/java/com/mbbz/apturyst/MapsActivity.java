@@ -31,13 +31,18 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mbbz.apturyst.utils.MyLocationProvider;
+import com.mbbz.apturyst.utils.Zdjecie;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -58,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
 
     MyLocationProvider mLocProvider;
+    DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +88,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         FirebaseDatabase mDB = FirebaseDatabase.getInstance();
 
-        DatabaseReference myRef = mDB.getReference("message");
+        myRef = mDB.getReference();
 
-        myRef.setValue("Hello, World!");
+        myRef.child("zdjecia").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("FB", "data changed");
+
+                for (DataSnapshot child: dataSnapshot.getChildren()) {
+                    Log.d("FB", ">> Child");
+                    Zdjecie zdj = child.getValue(Zdjecie.class);
+                    Double lat = zdj.getLatitude();
+                    Double lon = zdj.getLongitude();
+
+                    LatLng marker = new LatLng(lat, lon);
+                    mMap.addMarker(new MarkerOptions().position(marker).title("Marker "+zdj.getTimestamp()));
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("FB", "oncancelled");
+            }
+        });
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -122,6 +149,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(new Intent(getApplicationContext(), AndroidCameraApi.class));
             }
         });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
     }
 
@@ -222,21 +255,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (hasLocationPermission()) {
-            final Context context = getApplicationContext();
-            mMap.setMyLocationEnabled(true);
-            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    // Got last known location. In some rare situations, this can be null.
-                    if (location != null) {
-                        // TODO: Tutaj dodać logikę dodawania zdjęcia (?)
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 10));
-                    }
-                }
-            });
 
-            //
+        if (hasLocationPermission()) {
+            Location location = mLocProvider.getLastLocation();
+            if (location != null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 10));
+            }
         }
     }
 
@@ -249,15 +273,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Log.d("S", "Klik krotki");
-        Location loc = mLocProvider.getLastLocation();
-        Log.d("GEO", "Current location: ("+Double.toString(loc.getLatitude())+"; "+Double.toString(loc.getLongitude())+")");
+
     }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        Log.d("S", "Klik dlugi");
-        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker of Finder").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-    }
 
+    }
 }

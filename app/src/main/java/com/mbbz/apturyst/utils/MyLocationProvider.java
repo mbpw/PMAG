@@ -2,7 +2,6 @@ package com.mbbz.apturyst.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Point;
 import android.location.Location;
 import android.util.Log;
 
@@ -11,19 +10,17 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.mbbz.apturyst.MapsActivity;
 
 /**
  * Singleton klienta geolokalizacji
  */
 
 
-
 public class MyLocationProvider {
 
-    static MyLocationProvider instance;
+    private static MyLocationProvider instance;
     private FusedLocationProviderClient mFusedLocationClient;
-    Location lastLocation;
+    private Location lastLocation;
 
     @SuppressLint("MissingPermission")
     private MyLocationProvider(Context ctx) {
@@ -46,9 +43,8 @@ public class MyLocationProvider {
 
     public static MyLocationProvider getInstance(Context context) {
         if (instance == null)
-            return new MyLocationProvider(context);
-        else
-            return instance;
+            instance = new MyLocationProvider(context);
+        return instance;
     }
 
     private void updateLocation(Location location) {
@@ -64,10 +60,7 @@ public class MyLocationProvider {
     }
 
     public Location getLastLocation() {
-        if (lastLocation != null)
-            return lastLocation;
-        else
-            return null;
+        return lastLocation;
     }
 
 }
