@@ -29,8 +29,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -52,8 +54,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     FusedLocationProviderClient mFusedLocationClient;
     FirebaseAuth mAuth;
-    Button selecPhoto;
-    Button uploadPhoto;
     Button startCamera;
     private Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -70,8 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        uploadPhoto = (Button) findViewById(R.id.uploadPhoto_btn);
-        selecPhoto = (Button) findViewById(R.id.selecPhoto_btn);
+
         startCamera = (Button) findViewById(R.id.startCamera_btn);
 
 
@@ -97,13 +96,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 for (DataSnapshot child: dataSnapshot.getChildren()) {
                     Log.d("FB", ">> Child");
-                    Zdjecie zdj = child.getValue(Zdjecie.class);
-                    Double lat = zdj.getLatitude();
-                    Double lon = zdj.getLongitude();
+                    final Zdjecie zdj = child.getValue(Zdjecie.class);
 
-                    LatLng marker = new LatLng(lat, lon);
-                    Marker m = mMap.addMarker(new MarkerOptions().position(marker));
-                    m.setTag(zdj);
+                    StorageReference islandRef = storageReference.child("images/" + zdj.getImgFileName());
+                    Log.d("IMG", islandRef.toString());
+
+                    storageReference.child("images/" + zdj.getImgFileName()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            zdj.setPublicImageURI(uri);
+                            Double lat = zdj.getLatitude();
+                            Double lon = zdj.getLongitude();
+
+                            LatLng marker = new LatLng(lat, lon);
+                            Marker m = mMap.addMarker(new MarkerOptions().position(marker));
+                            m.setTag(zdj);
+                        }
+                    });
                 }
             }
 
@@ -126,20 +135,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(getApplicationContext(), "Poprawnie wylogowano!", Toast.LENGTH_LONG).show();
                 finish();
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-            }
-        });
-
-        selecPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chooseImage();
-            }
-        });
-
-        uploadPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                uploadImage();
             }
         });
 
@@ -245,7 +240,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
 
-        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this, storageReference);
+        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this, this.getLayoutInflater(), storageReference);
         mMap.setInfoWindowAdapter(customInfoWindow);
 
     }

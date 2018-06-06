@@ -1,5 +1,8 @@
 package com.mbbz.apturyst.utils;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
 /**
  * Klasa zdjęcia (rekordu w Bazie)
  */
@@ -10,6 +13,8 @@ public class Zdjecie {
     private String desc;
     private Double latitude;
     private Double longitude;
+    private Uri publicImageURI;
+
 
     public Zdjecie() {}
 
@@ -59,5 +64,13 @@ public class Zdjecie {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public Uri getPublicImageURI() {
+        return publicImageURI;
+    }
+
+    public void setPublicImageURI(Uri publicImageURI) {
+        this.publicImageURI = publicImageURI;
     }
 }

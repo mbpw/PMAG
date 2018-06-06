@@ -240,7 +240,7 @@ public class AndroidCameraApi extends AppCompatActivity {
 
                         String uuid = UUID.randomUUID().toString();
 
-                        StorageReference uploadRef = storageReference.child("images/"+uuid);
+                        StorageReference uploadRef = storageReference.child("images/"+uuid+".jpg");
                         UploadTask uploadTask = uploadRef.putBytes(bytes);
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
