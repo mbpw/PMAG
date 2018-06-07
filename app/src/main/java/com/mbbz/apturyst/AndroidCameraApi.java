@@ -3,6 +3,7 @@ package com.mbbz.apturyst;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -31,6 +32,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -70,6 +72,7 @@ public class AndroidCameraApi extends AppCompatActivity {
 
     private static final String TAG = "AndroidCameraApi";
     private Button takePictureButton;
+    private EditText editDesc;
     private TextureView textureView;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
@@ -95,14 +98,19 @@ public class AndroidCameraApi extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_android_camera_api);
+
         storage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
         storageReference = storage.getReference();
+
         mLocProvider = MyLocationProvider.getInstance(this);
 
         textureView = (TextureView) findViewById(R.id.texture);
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
+
+        editDesc = (EditText) findViewById(R.id.edit_desc);
+
         takePictureButton = (Button) findViewById(R.id.btn_takepicture);
         assert takePictureButton != null;
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -245,7 +253,7 @@ public class AndroidCameraApi extends AppCompatActivity {
                         uploadTask.addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
-                                Toast.makeText(AndroidCameraApi.this, "Nie udal sie upload :(", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AndroidCameraApi.this, "Nie udało się dodać zdjęcia :(", Toast.LENGTH_SHORT).show();
                                 progressDialog.dismiss();
                             }
                         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -253,13 +261,17 @@ public class AndroidCameraApi extends AppCompatActivity {
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 Toast.makeText(AndroidCameraApi.this, "Upload OK", Toast.LENGTH_SHORT).show();
                                 progressDialog.dismiss();
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
                             }
                         });
+
+                        String desc = editDesc.getText().toString();
 
                         DatabaseReference dbRef = database.getReference().child("zdjecia/"+uuid);
                         Zdjecie zdj = new Zdjecie(Utils.getCurrentDateTime(),
                                 uuid+".jpg",
-                                "Opis zdjęcia",
+                                desc,
                                 mLocProvider.getLastLocation().getLatitude(),
                                 mLocProvider.getLastLocation().getLongitude());
 

@@ -50,21 +50,20 @@ import com.mbbz.apturyst.utils.Zdjecie;
 import java.io.IOException;
 import java.util.UUID;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     FusedLocationProviderClient mFusedLocationClient;
     FirebaseAuth mAuth;
     Button startCamera;
-    private Uri filePath;
-    private final int PICK_IMAGE_REQUEST = 71;
+
     FirebaseStorage storage;
     StorageReference storageReference;
+    DatabaseReference myRef;
 
     private static final int REQ_CODE_PERMISSION = 1;
     private GoogleMap mMap;
 
     MyLocationProvider mLocProvider;
-    DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,19 +91,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         myRef.child("zdjecia").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("FB", "data changed");
 
                 for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    Log.d("FB", ">> Child");
-                    final Zdjecie zdj = child.getValue(Zdjecie.class);
 
-                    StorageReference islandRef = storageReference.child("images/" + zdj.getImgFileName());
-                    Log.d("IMG", islandRef.toString());
+                    final Zdjecie zdj = child.getValue(Zdjecie.class);
 
                     storageReference.child("images/" + zdj.getImgFileName()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             zdj.setPublicImageURI(uri);
+                            Double lat = zdj.getLatitude();
+                            Double lon = zdj.getLongitude();
+
+                            LatLng marker = new LatLng(lat, lon);
+                            Marker m = mMap.addMarker(new MarkerOptions().position(marker));
+                            m.setTag(zdj);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
                             Double lat = zdj.getLatitude();
                             Double lon = zdj.getLongitude();
 
@@ -118,7 +123,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("FB", "oncancelled");
+                Log.e("FB", "Błąd");
             }
         });
 
@@ -128,6 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // Buttons listeners
         findViewById(R.id.buttonLogout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,10 +179,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Move camera to Warsaw
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(52.2129, 21.0)));
 
-
-        mMap.setOnMapClickListener(this);
-        mMap.setOnMapLongClickListener(this);
-
         CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this, this.getLayoutInflater(), storageReference);
         mMap.setInfoWindowAdapter(customInfoWindow);
 
@@ -205,13 +207,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
-    @Override
-    public void onMapClick(LatLng latLng) {
-
-    }
-
-    @Override
-    public void onMapLongClick(LatLng latLng) {
-
-    }
 }

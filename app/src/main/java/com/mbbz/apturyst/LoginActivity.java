@@ -14,7 +14,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -61,7 +60,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         if (password.length() < 6) {
-            editTextPassword.setError(getResources().getString(R.string.error_invalid_email));
+            editTextPassword.setError(getResources().getString(R.string.error_invalid_password));
             editTextPassword.requestFocus();
             return;
         }
@@ -87,7 +86,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onStart() {
         super.onStart();
-        //FirebaseAuth.getInstance().signOut(); //TODO: do usunięcia
+
         if (mAuth.getCurrentUser() != null) {
             finish();
             startActivity(new Intent(this, MapsActivity.class));

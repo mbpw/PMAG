@@ -61,7 +61,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         if (password.length() < 6) {
-            editTextPassword.setError(getResources().getString(R.string.error_invalid_email));
+            editTextPassword.setError(getResources().getString(R.string.error_invalid_password));
             editTextPassword.requestFocus();
             return;
         }
@@ -78,7 +78,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
 
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                        Toast.makeText(getApplicationContext(), "You are already registered", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Jesteś już zarejestrowany!", Toast.LENGTH_SHORT).show();
 
                     } else {
                         Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
